@@ -44,18 +44,18 @@ def download_meka(version=None):
         if MD5 mismatch happens after a download error
     """
     version = version or SUPPORTED_VERSION
-    meka_release_string = "meka-release-{}".format(version)
-    file_name = meka_release_string + '-bin.zip'
+    meka_release_string = f"meka-release-{version}"
+    file_name = f'{meka_release_string}-bin.zip'
     meka_path = get_data_home(subdirectory='meka')
     target_path = os.path.join(meka_path, file_name)
     path_to_lib = os.path.join(meka_path, meka_release_string, 'lib')
 
     if os.path.exists(target_path):
-        print("MEKA {} found, not downloading".format(version))
+        print(f"MEKA {version} found, not downloading")
 
     else:
-        print("MEKA {} not found, downloading".format(version))
-        release_url = "http://downloads.sourceforge.net/project/meka/meka-{}/".format(version)
+        print(f"MEKA {version} not found, downloading")
+        release_url = f"http://downloads.sourceforge.net/project/meka/meka-{version}/"
         _download_single_file(file_name, target_path, release_url)
 
         found_md5 = _get_md5(target_path)
@@ -64,10 +64,10 @@ def download_meka(version=None):
 
     if not os.path.exists(path_to_lib):
         with zipfile.ZipFile(target_path, 'r') as meka_zip:
-            print("Unzipping MEKA {} to {}".format(version, meka_path + os.path.sep))
+            print(f"Unzipping MEKA {version} to {meka_path + os.path.sep}")
             meka_zip.extractall(path=meka_path + os.path.sep)
 
-    if not os.path.exists(os.path.join(path_to_lib, 'meka-{}.jar'.format(version))):
+    if not os.path.exists(os.path.join(path_to_lib, f'meka-{version}.jar')):
         raise IOError("Something went wrong, MEKA files missing, please file a bug report")
 
     return path_to_lib + os.path.sep
@@ -166,15 +166,15 @@ class Meka(MLClassifierBase):
             from whichcraft import which
             self.java_command = which("java")
 
-            if self.java_command is None:
-                raise ValueError("Java not found")
+        if self.java_command is None:
+            raise ValueError("Java not found")
 
         self.meka_classpath = meka_classpath
         if self.meka_classpath is None:
             self.meka_classpath = os.environ.get('MEKA_CLASSPATH')
 
-            if self.meka_classpath is None:
-                raise ValueError("No meka classpath defined")
+        if self.meka_classpath is None:
+            raise ValueError("No meka classpath defined")
 
         self.meka_classifier = meka_classifier
         self.weka_classifier = weka_classifier
@@ -209,7 +209,7 @@ class Meka(MLClassifierBase):
             if os.path.exists(file_name):
                 os.remove(file_name)
 
-            arff_file_name = file_name + '.arff'
+            arff_file_name = f'{file_name}.arff'
             if os.path.exists(arff_file_name):
                 os.remove(arff_file_name)
 
@@ -246,14 +246,18 @@ class Meka(MLClassifierBase):
         classifier_dump_file = tempfile.NamedTemporaryFile(delete=False)
 
         try:
-            with open(train_arff.name + '.arff', 'w') as fp:
+            with open(f'{train_arff.name}.arff', 'w') as fp:
                 fp.write(self.train_data_)
 
             input_args = [
-                '-verbosity', "0",
-                '-split-percentage', "100",
-                '-t', '"{}"'.format(train_arff.name + '.arff'),
-                '-d', '"{}"'.format(classifier_dump_file.name),
+                '-verbosity',
+                "0",
+                '-split-percentage',
+                "100",
+                '-t',
+                f'"{train_arff.name}.arff"',
+                '-d',
+                f'"{classifier_dump_file.name}"',
             ]
 
             self._run_meka_command(input_args)
@@ -297,20 +301,18 @@ class Meka(MLClassifierBase):
             test_arff = tempfile.NamedTemporaryFile(delete=False)
             classifier_dump_file = tempfile.NamedTemporaryFile(delete=False)
 
-            with open(train_arff.name + '.arff', 'w') as fp:
+            with open(f'{train_arff.name}.arff', 'w') as fp:
                 fp.write(self.train_data_)
 
             with open(classifier_dump_file.name, 'wb') as fp:
                 fp.write(self.classifier_dump)
 
-            with open(test_arff.name + '.arff', 'w') as fp:
+            with open(f'{test_arff.name}.arff', 'w') as fp:
                 fp.write(save_to_arff(X, sparse_y))
 
-            args = [
-                '-l', '"{}"'.format(classifier_dump_file.name)
-            ]
+            args = ['-l', f'"{classifier_dump_file.name}"']
 
-            self._run(train_arff.name + '.arff', test_arff.name + '.arff', args)
+            self._run(f'{train_arff.name}.arff', f'{test_arff.name}.arff', args)
             self._parse_output()
 
         finally:
@@ -346,10 +348,13 @@ class Meka(MLClassifierBase):
         # meka.classifiers.multilabel.LC, weka.classifiers.bayes.NaiveBayes
 
         args = [
-                   '-t', '"{}"'.format(train_file),
-                   '-T', '"{}"'.format(test_file),
-                   '-verbosity', str(5),
-               ] + additional_arguments
+            '-t',
+            f'"{train_file}"',
+            '-T',
+            f'"{test_file}"',
+            '-verbosity',
+            str(5),
+        ] + additional_arguments
 
         self._run_meka_command(args)
         return self
@@ -420,7 +425,8 @@ class Meka(MLClassifierBase):
     def _run_meka_command(self, args):
         command_args = [
             self.java_command,
-            '-cp', '"{}*"'.format(self.meka_classpath),
+            '-cp',
+            f'"{self.meka_classpath}*"',
             self.meka_classifier,
         ]
 

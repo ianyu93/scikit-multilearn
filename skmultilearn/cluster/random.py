@@ -92,11 +92,9 @@ class RandomLabelSpaceClusterer(LabelSpaceClustererBase):
         """
 
         if (self.cluster_count+1) * self.cluster_size < y.shape[1]:
-            raise ValueError("Cannot include all of {} labels in {} clusters of {} labels".format(
-                y.shape[1],
-                self.cluster_count,
-                self.cluster_size
-            ))
+            raise ValueError(
+                f"Cannot include all of {y.shape[1]} labels in {self.cluster_count} clusters of {self.cluster_size} labels"
+            )
 
         all_labels_assigned_to_division = False
         # make sure the final label set division includes all labels

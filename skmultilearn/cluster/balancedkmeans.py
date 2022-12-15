@@ -45,21 +45,18 @@ class BalancedKMeansClusterer(LabelSpaceClustererBase):
         #We have to do the balance k-means and then use it for HOMER with the label powerset
         Centers =[]
         y = y.todense()
-        for i in range(0, self.k):
+        for _ in range(self.k):
             auxVector = y[:, random.randint(0, number_of_labels-1)]
             Centers.append(np.asarray(auxVector))
         #Now we have the clusters created and we need to make each label its corresponding cluster
-        
+
         while self.it > 0:
             balancedCluster = []
-            for j in range(0, number_of_labels):
+            for j in range(number_of_labels):
                 auxVector = y[:,j]
                 v = np.asarray(auxVector)
                 #Now we calculate the distance and store it in an array
-                distances = []
-                for i in range(0, self.k):
-                    #Store the distances
-                    distances.append(_euclidean_distance(v, Centers[i]))
+                distances = [_euclidean_distance(v, Centers[i]) for i in range(self.k)]
                 finished = False
                 while not finished:
                     minIndex = np.argmin(distances)
@@ -72,17 +69,18 @@ class BalancedKMeansClusterer(LabelSpaceClustererBase):
                     else:
                         finished = True
 
-                
+
             Centers = _recalculateCenters(np.asarray(y), balancedCluster, self.k)
             self.it = self.it -1
 
         #Returns a list of list with the clusterers
         labelCluster = []
-        for i in range(0, self.k):
-            cluster = []
-            for j in range(0, len(balancedCluster)):
-                if int(i) == int(balancedCluster[j]):
-                    cluster.append(int(j))
+        for i in range(self.k):
+            cluster = [
+                int(j)
+                for j in range(len(balancedCluster))
+                if int(i) == int(balancedCluster[j])
+            ]
             labelCluster.append(cluster)
 
         return np.asarray(labelCluster)

@@ -63,8 +63,17 @@ def get_combination_wise_output_matrix(y, order):
     combinations_per_row : List[Set[Tuple[int]]]
         list of combination assignments per row
     """
-    return np.array([set(tuple(combination) for combination in
-                         it.combinations_with_replacement(get_indicator_representation(row), order)) for row in y])
+    return np.array(
+        [
+            {
+                tuple(combination)
+                for combination in it.combinations_with_replacement(
+                    get_indicator_representation(row), order
+                )
+            }
+            for row in y
+        ]
+    )
 
 
 def get_unique_combinations(combinations_per_row):

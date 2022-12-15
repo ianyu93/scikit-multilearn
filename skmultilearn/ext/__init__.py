@@ -18,11 +18,12 @@ Currently the available classes include:
 
 """
 
+
 import sys, platform
 from .meka import Meka, download_meka
 
 __all__ = ["Meka", 'download_meka']
 
-if not (sys.version_info[0] == 2 or platform.architecture()[0]=='32bit'):
+if sys.version_info[0] != 2 and platform.architecture()[0] != '32bit':
     from .keras import Keras
     __all__ += ['Keras']

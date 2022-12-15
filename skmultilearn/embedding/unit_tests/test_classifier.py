@@ -10,7 +10,7 @@ from sklearn.manifold import SpectralEmbedding
 from copy import copy
 import sklearn.metrics as metrics
 
-if not (sys.version_info[0] == 2 or platform.architecture()[0]=='32bit'):
+if sys.version_info[0] != 2 and platform.architecture()[0] != '32bit':
     from skmultilearn.embedding import OpenNetworkEmbedder
 
 
@@ -20,22 +20,18 @@ class EmbeddingTest(ClassifierBaseTest):
     def classifiers(self):
         graph_builder = LabelCooccurrenceGraphBuilder(weighted=True, include_self_edges=False)
 
-        param_dicts = {
-            'GraphFactorization': dict(epoch=1),
-            'GraRep': dict(Kstep=2),
-            'HOPE': dict(),
-            'LaplacianEigenmaps': dict(),
-            'LINE': dict(epoch=1, order=1),
-            'LLE': dict(),
-        }
+        if sys.version_info[0] != 2 and platform.architecture()[0] != '32bit':
+            param_dicts = {
+                'GraphFactorization': dict(epoch=1),
+                'GraRep': dict(Kstep=2),
+                'HOPE': {},
+                'LaplacianEigenmaps': {},
+                'LINE': dict(epoch=1, order=1),
+                'LLE': {},
+            }
 
-        if not (sys.version_info[0] == 2 or platform.architecture()[0] == '32bit'):
             for embedding in OpenNetworkEmbedder._EMBEDDINGS:
-                if embedding == 'LLE':
-                    dimension = 3
-                else:
-                    dimension = 4
-
+                dimension = 3 if embedding == 'LLE' else 4
                 yield EmbeddingClassifier(
                         OpenNetworkEmbedder(copy(graph_builder), embedding, dimension,
                                         'add', True, param_dicts[embedding]),

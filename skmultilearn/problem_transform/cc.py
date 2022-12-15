@@ -145,7 +145,7 @@ class ClassifierChain(ProblemTransformationBase):
         y = self._ensure_output_format(y, sparse_format='csc', enforce_sparse=True)
 
         self._label_count = y.shape[1]
-        self.classifiers_ = [None for x in range(self._label_count)]
+        self.classifiers_ = [None for _ in range(self._label_count)]
 
         for label in self._order():
             self.classifier = copy.deepcopy(self.classifier)

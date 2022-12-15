@@ -14,10 +14,10 @@ def get_matrix_clusterers(cluster_count=3):
 class MatrixLabelSpaceClustererTests(ClassifierBaseTest):
 
     def test_actually_works_on_proper_params(self):
+        cluster_count = 3
+
         for X, y in self.get_multilabel_data_for_tests('sparse'):
             assert sp.issparse(y)
-            cluster_count = 3
-
             for clusterer in get_matrix_clusterers(cluster_count):
                 partition = clusterer.fit_predict(X, y)
                 self.assertIsInstance(partition, np.ndarray)

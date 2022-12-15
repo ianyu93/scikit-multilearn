@@ -21,8 +21,7 @@ if (sys.platform != 'win32') and (sys.platform != 'darwin' and sys.version_info[
                     bld = LabelCooccurrenceGraphBuilder(weighted=weight_model is not None,
                                                         include_self_edges=False,
                                                         normalize_self_edges=False)
-                    clf = GraphToolLabelGraphClusterer(graph_builder=bld, model=sbm)
-                    yield clf
+                    yield GraphToolLabelGraphClusterer(graph_builder=bld, model=sbm)
 
     @pytest.mark.skipif(sys.platform == 'win32', reason="does not _run on windows")
     @pytest.mark.parametrize("nested,degree_correlation,allow_overlap,weight_model", [

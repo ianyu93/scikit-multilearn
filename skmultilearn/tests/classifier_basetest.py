@@ -22,10 +22,10 @@ class ClassifierBaseTest(unittest.TestCase):
             self.assertEqual(result.shape, y_test.shape)
 
     def assertClassifierWorksWithCV(self, classifier):
+        n_iterations = 3
         # all the nice stuff is tested here - whether the classifier is
         # clonable, etc.
         for X, y in self.get_multilabel_data_for_tests('dense'):
-            n_iterations = 3
             cv = model_selection.ShuffleSplit(n_splits=n_iterations, test_size=0.5, random_state=0)
 
             scores = model_selection.cross_val_score(

@@ -15,19 +15,14 @@ if (sys.platform != 'win32') and (sys.platform != 'darwin' and sys.version_info[
     from skmultilearn.cluster.tests.test_igraph import get_igraph_clusterers
 
 def generate_all_label_space_clusterers():
-    for clusterer in get_networkx_clusterers():
-        yield clusterer
-
-    for clusterer in get_matrix_clusterers():
-        yield clusterer
-
+    yield from get_networkx_clusterers()
+    yield from get_matrix_clusterers()
     if (sys.platform != 'win32') and (sys.platform != 'darwin' and sys.version_info[0] == 2):
 
         for clusterer, _ in get_igraph_clusterers():
             yield clusterer
 
-        for clusterer in get_graphtool_partitioners():
-            yield clusterer
+        yield from get_graphtool_partitioners()
 
 
 class LabelSpacePartitioningClassifierTest(ClassifierBaseTest):

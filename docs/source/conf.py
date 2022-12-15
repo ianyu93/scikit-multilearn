@@ -112,7 +112,7 @@ pygments_style = 'friendly'
 
 # Example configuration for intersphinx: refer to the Python standard library.
 _python_version_str = '{0.major}.{0.minor}'.format(sys.version_info)
-_python_doc_base = 'http://docs.python.org/' + _python_version_str
+_python_doc_base = f'http://docs.python.org/{_python_version_str}'
 
 intersphinx_mapping = {
     'python': (_python_doc_base, None),
@@ -166,13 +166,6 @@ html_short_title = 'scikit-multilearn'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Add any extra paths that contain custom files (such as robots.txt or
-# .htaccess) here, relative to this directory. These files are copied
-# directly to the root of the documentation.
-#html_extra_path = []
-#html_context = {
-#    #'css_files': [
-        #'_static/theme_overrides.css',  # overrides for wide tables in RTD theme
 #        ],
 #    }
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,

@@ -169,12 +169,11 @@ class EmbeddingClassifier(ProblemTransformationBase):
         X = self._ensure_input_format(X)
         y_embedded = self._ensure_input_format(y_embedded)
 
-        if sp.issparse(X):
-            X_y_embedded = sp.hstack([X, y_embedded])
-        else:
-            X_y_embedded = np.hstack([X, y_embedded])
-
-        return X_y_embedded
+        return (
+            sp.hstack([X, y_embedded])
+            if sp.issparse(X)
+            else np.hstack([X, y_embedded])
+        )
 
     def _predict_embedding(self, X):
         if self.regressor_per_dimension:

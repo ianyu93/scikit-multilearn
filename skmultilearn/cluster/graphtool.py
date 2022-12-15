@@ -78,11 +78,7 @@ class StochasticBlockModel:
         return self._detect_communities()
 
     def _detect_communities(self):
-        if self.nested:
-            lowest_level = self.model_.get_levels()[0]
-        else:
-            lowest_level = self.model_
-
+        lowest_level = self.model_.get_levels()[0] if self.nested else self.model_
         number_of_communities = lowest_level.get_B()
         if self.allow_overlap:
             # the overlaps block returns
