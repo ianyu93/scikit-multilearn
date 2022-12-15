@@ -59,15 +59,12 @@ def _euclidean_distance(array1, array2):
     distance : float
         float with the euclidean distance, False if not possible
     """
-    #Ensure that both arrays hava the same length
     if len(array1) != len(array2):
         return False
-    else:
-        distance = 0.0
-        for i in range(0, len(array1)):
-            distance = distance + pow(array1[i] - array2[i], 2)
-        distance = math.sqrt(distance)
-        return distance
+    distance = 0.0
+    for i in range(len(array1)):
+        distance = distance + pow(array1[i] - array2[i], 2)
+    return math.sqrt(distance)
 
 def _recalculateCenters(y, balancedCluster, k):
 
@@ -75,11 +72,11 @@ def _recalculateCenters(y, balancedCluster, k):
     kAux = 0
     while kAux < k:
         vectorAux = np.zeros(len(y))
-        for i in range(0, len(balancedCluster)):
+        for i in range(len(balancedCluster)):
 
-            if int(kAux) == int(balancedCluster[i]):
+            if kAux == int(balancedCluster[i]):
                 #We have to fill the vector
-                for j in range(0, len(y)):
+                for j in range(len(y)):
                     vectorAux[j] += y[j,i]
 
         vectorAux /= k
@@ -101,8 +98,4 @@ def _countNumberOfAparitions(array, number):
     aparaitions : int
         Number of aparitions of the number in the given array
     """
-    aparitions = 0
-    for i in range(0, len(array)):
-        if array[i] == number:
-            aparitions += 1
-    return aparitions
+    return sum(array[i] == number for i in range(len(array)))

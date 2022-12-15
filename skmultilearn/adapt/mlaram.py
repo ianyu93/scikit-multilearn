@@ -32,9 +32,7 @@ def _get_label_combination_representation(label_assignment_binary_indicator_list
 
 
 def _get_label_vector(y, i):
-    if issparse(y):
-        return numpy.squeeze(numpy.asarray(y[i].todense()))
-    return y[i]
+    return numpy.squeeze(numpy.asarray(y[i].todense())) if issparse(y) else y[i]
 
 def _concatenate_with_negation(row):
     ones = scipy.ones(row.shape)
@@ -117,10 +115,7 @@ class MLARAM(MLClassifierBase):
     def __init__(self, vigilance=0.9, threshold=0.02, neurons=None):
         super(MLARAM, self).__init__()
 
-        if neurons is not None:
-            self.neurons = neurons
-        else:
-            self.neurons = []
+        self.neurons = neurons if neurons is not None else []
         self.vigilance = vigilance
         self.threshold = threshold
 
@@ -251,13 +246,10 @@ class MLARAM(MLClassifierBase):
             diffs = -numpy.diff([rank[k] for k in sorted_rank_arg])
 
             indcutt = numpy.where(diffs == diffs.max())[0]
-            if len(indcutt.shape) == 1:
-                indcut = indcutt[0] + 1
-            else:
-                indcut = indcutt[0, -1] + 1
+            indcut = indcutt[0] + 1 if len(indcutt.shape) == 1 else indcutt[0, -1] + 1
             label = numpy.zeros(rank.shape)
 
-            label[sorted_rank_arg[0:indcut]] = 1
+            label[sorted_rank_arg[:indcut]] = 1
 
             result.append(label)
 
@@ -326,13 +318,10 @@ class MLARAM(MLClassifierBase):
 
                 largest_activity += 1
 
-            rbsum = sum([activity[k] for k in sorted_activity[0:largest_activity]])
+            rbsum = sum(activity[k] for k in sorted_activity[:largest_activity])
             rank = activity[winner] * self.neurons[winner].label
-            activated = []
-            activity_among_activated = []
-            activated.append(winner)
-            activity_among_activated.append(activity[winner])
-
+            activated = [winner]
+            activity_among_activated = [activity[winner]]
             for i in range(1, largest_activity):
                 rank += activity[sorted_activity[i]] * self.neurons[
                     sorted_activity[i]].label

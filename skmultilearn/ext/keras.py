@@ -15,11 +15,7 @@ class Keras(BaseEstimator):
         self.keras_params = keras_params
 
     def fit(self, X, y):
-        if self.multi_class:
-            self.n_classes_ = len(set(y))
-        else:
-            self.n_classes_ = 1
-
+        self.n_classes_ = len(set(y)) if self.multi_class else 1
         build_callable = lambda: self.build_function(X.shape[1], self.n_classes_)
         keras_params=copy(self.keras_params)
         keras_params['build_fn']=build_callable

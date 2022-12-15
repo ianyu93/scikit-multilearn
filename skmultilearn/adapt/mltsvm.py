@@ -106,7 +106,7 @@ class MLTSVM(MLClassifierBase):
 
         X_bias = _hstack(X, np.ones((X.shape[0], 1), dtype=X.dtype))
         self.iteration_count = []
-        for label in range(0, n_labels):
+        for label in range(n_labels):
             # Calculate the parameter Q for overrelaxation
             H_k = _get_x_class_instances(X_bias, Y, label)
             G_k = _get_x_noclass_instances(X_bias, Y, label)
@@ -128,9 +128,7 @@ class MLTSVM(MLClassifierBase):
         X_with_bias = _hstack(X, np.ones((X.shape[0], 1), dtype=X.dtype))
         wk_norms_multiplicated = self.wk_norms[np.newaxis, :]  # change to form [[wk1, wk2, ..., wkk]]
         all_distances = (-X_with_bias.dot(self.wk_bk.T)) / wk_norms_multiplicated
-        predicted_y = np.where(all_distances < self.treshold, 1, 0)
-        # TODO: It's possible to add condition to: add label if no labels is in row.
-        return predicted_y
+        return np.where(all_distances < self.treshold, 1, 0)
 
     def _successive_overrelaxation(self, omegaW, Q):
         # Initialization
@@ -146,7 +144,7 @@ class MLTSVM(MLClassifierBase):
         nr_iter = 0
         while is_not_enough:  # do while
             oldAlpha = oldnew_alpha
-            for j in range(0, small_l):  # It's from last alpha to first
+            for j in range(small_l):  # It's from last alpha to first
                 oldnew_alpha[j] = oldAlpha[j] - omegaW * D_inv[j] * (Q[j, :].T.dot(oldnew_alpha) - 1)
             oldnew_alpha = oldnew_alpha.clip(0.0, self.c_k)
             alfa_norm_change = norm(oldnew_alpha - oldAlpha)
@@ -154,8 +152,8 @@ class MLTSVM(MLClassifierBase):
             if not was_going_down and last_alfa_norm_change > alfa_norm_change:
                 was_going_down = True
             is_not_enough = alfa_norm_change > self.threshold and \
-                            nr_iter < self.max_iteration \
-                            and ((not was_going_down) or last_alfa_norm_change > alfa_norm_change)
+                                nr_iter < self.max_iteration \
+                                and ((not was_going_down) or last_alfa_norm_change > alfa_norm_change)
             # TODO: maybe add any(oldnew_alpha != oldAlpha)
 
             last_alfa_norm_change = alfa_norm_change

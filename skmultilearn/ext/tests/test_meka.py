@@ -26,7 +26,9 @@ class MekaTest(ClassifierBaseTest):
     def test_if_downloading_meka_works(self):
         clear_data_home()
         path = download_meka()
-        self.assertTrue(os.path.exists(os.path.join(path, 'meka-{}.jar'.format(SUPPORTED_VERSION))))
+        self.assertTrue(
+            os.path.exists(os.path.join(path, f'meka-{SUPPORTED_VERSION}.jar'))
+        )
         clear_data_home()
 
 

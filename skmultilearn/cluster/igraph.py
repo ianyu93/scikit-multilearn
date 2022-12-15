@@ -151,8 +151,7 @@ class IGraphLabelGraphClusterer(LabelGraphClustererBase):
         self.method = method
 
         if method not in IGraphLabelGraphClusterer._METHODS:
-            raise ValueError(
-                "{} not a supported igraph community detection method".format(method))
+            raise ValueError(f"{method} not a supported igraph community detection method")
 
     def fit_predict(self, X, y):
         """Performs clustering on y and returns list of label lists
@@ -182,9 +181,9 @@ class IGraphLabelGraphClusterer(LabelGraphClustererBase):
             self.weights_ = dict(weight=None)
 
         self.graph_ = Graph(
-            edges=[x for x in edge_map],
+            edges=list(edge_map),
             vertex_attrs=dict(name=list(range(1, y.shape[1] + 1))),
-            edge_attrs=self.weights_
+            edge_attrs=self.weights_,
         )
 
         return np.array(

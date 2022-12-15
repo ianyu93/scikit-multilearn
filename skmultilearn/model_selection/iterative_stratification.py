@@ -116,12 +116,11 @@ def _fold_tie_break(desired_samples_per_fold, M):
     """
     if len(M) == 1:
         return M[0]
-    else:
-        max_val = max(desired_samples_per_fold[M])
-        M_prim = np.where(
-            np.array(desired_samples_per_fold) == max_val)[0]
-        M_prim = np.array([x for x in M_prim if x in M])
-        return np.random.choice(M_prim, 1)[0]
+    max_val = max(desired_samples_per_fold[M])
+    M_prim = np.where(
+        np.array(desired_samples_per_fold) == max_val)[0]
+    M_prim = np.array([x for x in M_prim if x in M])
+    return np.random.choice(M_prim, 1)[0]
 
 
 def _get_most_desired_combination(samples_with_combination):
@@ -184,10 +183,9 @@ class IterativeStratification(_BaseKFold):
                            shuffle=False,
                            random_state=random_state)
 
-        if sample_distribution_per_fold:
-            self.percentage_per_fold = sample_distribution_per_fold
-        else:
-            self.percentage_per_fold = [1 / float(self.n_splits) for _ in range(self.n_splits)]
+        self.percentage_per_fold = sample_distribution_per_fold or [
+            1 / float(self.n_splits) for _ in range(self.n_splits)
+        ]
 
     def _prepare_stratification(self, y):
         """Prepares variables for performing stratification
@@ -241,7 +239,7 @@ class IterativeStratification(_BaseKFold):
         rows = sp.lil_matrix(y).rows
         rows_used = {i: False for i in range(self.n_samples)}
         all_combinations = []
-        per_row_combinations = [[] for i in range(self.n_samples)]
+        per_row_combinations = [[] for _ in range(self.n_samples)]
         samples_with_combination = {}
         folds = [[] for _ in range(self.n_splits)]
 
@@ -338,10 +336,9 @@ class IterativeStratification(_BaseKFold):
             check_random_state(self.random_state)
 
         rows, rows_used, all_combinations, per_row_combinations, samples_with_combination, folds = \
-            self._prepare_stratification(y)
+                self._prepare_stratification(y)
 
         self._distribute_positive_evidence(rows_used, folds, samples_with_combination, per_row_combinations)
         self._distribute_negative_evidence(rows_used, folds)
 
-        for fold in folds:
-            yield fold
+        yield from folds

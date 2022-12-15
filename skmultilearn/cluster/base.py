@@ -191,7 +191,6 @@ class LabelCooccurrenceGraphBuilder(GraphBuilderBase):
             weight map with a tuple of label indexes as keys and a the number of samples in which the two co-occurred
         """
         label_data = get_matrix_in_format(y, 'lil')
-        label_count = label_data.shape[1]
         edge_map = {}
 
         for row in label_data.rows:
@@ -203,11 +202,11 @@ class LabelCooccurrenceGraphBuilder(GraphBuilderBase):
             for p in pairs:
                 if p not in edge_map:
                     edge_map[p] = 1.0
-                else:
-                    if self.is_weighted:
-                        edge_map[p] += 1.0
+                elif self.is_weighted:
+                    edge_map[p] += 1.0
 
         if self.normalize_self_edges:
+            label_count = label_data.shape[1]
             for i in range(label_count):
                 if (i, i) in edge_map:
                     edge_map[(i, i)] = edge_map[(i, i)] / 2.0

@@ -79,22 +79,16 @@ class MLClassifierBase(BaseEstimator, ClassifierMixin):
             set to :code:`false`, a sparse matrix of format
             :code:`sparse_format` is returned, if possible - without cloning.
         """
-        is_sparse = issparse(X)
-
-        if is_sparse:
-            if self.require_dense[0] and not enforce_sparse:
-                return X.toarray()
-            else:
-                if sparse_format is None:
-                    return X
-                else:
-                    return get_matrix_in_format(X, sparse_format)
+        if not (is_sparse := issparse(X)):
+            return (
+                X
+                if self.require_dense[0] and not enforce_sparse
+                else matrix_creation_function_for_format(sparse_format)(X)
+            )
+        if self.require_dense[0] and not enforce_sparse:
+            return X.toarray()
         else:
-            if self.require_dense[0] and not enforce_sparse:
-                # TODO: perhaps a check_array?
-                return X
-            else:
-                return matrix_creation_function_for_format(sparse_format)(X)
+            return X if sparse_format is None else get_matrix_in_format(X, sparse_format)
 
     def _ensure_output_format(self, matrix, sparse_format='csr', enforce_sparse=False):
         """Ensure the desired output format
@@ -129,32 +123,23 @@ class MLClassifierBase(BaseEstimator, ClassifierMixin):
             set to :code:`false`, a sparse matrix of format
             :code:`sparse_format` is returned, if possible - without cloning.
         """
-        is_sparse = issparse(matrix)
-
-        if is_sparse:
+        if is_sparse := issparse(matrix):
             if self.require_dense[1] and not enforce_sparse:
-                if matrix.shape[1] != 1:
-                    return matrix.toarray()
-                elif matrix.shape[1] == 1:
-                    return np.ravel(matrix.toarray())
+                return matrix.toarray() if matrix.shape[1] != 1 else np.ravel(matrix.toarray())
             else:
-                if sparse_format is None:
-                    return matrix
-                else:
-                    return get_matrix_in_format(matrix, sparse_format)
-        else:
-            if self.require_dense[1] and not enforce_sparse:
+                return (
+                    matrix
+                    if sparse_format is None
+                    else get_matrix_in_format(matrix, sparse_format)
+                )
+        elif self.require_dense[1] and not enforce_sparse:
                 # ensuring 1d
-                if len(matrix.shape) > 1:
-                    # a regular dense np.matrix or np.array of np.arrays
-                    return np.ravel(matrix)
-                else:
-                    return matrix
-            else:
-                # ensuring 2d
-                if len(matrix.shape) == 1:
-                    matrix = matrix.reshape((matrix.shape[0], 1))
-                return matrix_creation_function_for_format(sparse_format)(matrix)
+            return np.ravel(matrix) if len(matrix.shape) > 1 else matrix
+        else:
+            # ensuring 2d
+            if len(matrix.shape) == 1:
+                matrix = matrix.reshape((matrix.shape[0], 1))
+            return matrix_creation_function_for_format(sparse_format)(matrix)
 
     def fit(self, X, y):
         """Abstract method to fit classifier with training data
@@ -222,14 +207,14 @@ class MLClassifierBase(BaseEstimator, ClassifierMixin):
             :code:`deep=True` the dictionary also holds the parameters
             of the parameters.
         """
-        out = dict()
+        out = {}
 
         for attr in self.copyable_attrs:
             out[attr] = getattr(self, attr)
 
             if hasattr(getattr(self, attr), 'get_params') and deep:
                 deep_items = list(getattr(self, attr).get_params().items())
-                out.update((attr + '__' + k, val) for k, val in deep_items)
+                out |= ((f'{attr}__{k}', val) for k, val in deep_items)
 
         return out
 

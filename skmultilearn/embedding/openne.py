@@ -113,15 +113,17 @@ class OpenNetworkEmbedder:
 
     def __init__(self, graph_builder, embedding, dimension, aggregation_function, normalize_weights, param_dict=None):
         if embedding not in self._EMBEDDINGS:
-            raise ValueError('Embedding must be one of {}'.format(', '.join(self._EMBEDDINGS.keys())))
+            raise ValueError(
+                f"Embedding must be one of {', '.join(self._EMBEDDINGS.keys())}"
+            )
 
         if aggregation_function in self._AGGREGATION_FUNCTIONS:
             self.aggregation_function = self._AGGREGATION_FUNCTIONS[aggregation_function]
         elif callable(aggregation_function):
             self.aggregation_function = aggregation_function
         else:
-            raise ValueError('Aggregation function must be callable or one of {}'.format(
-                ', '.join(self._AGGREGATION_FUNCTIONS.keys()))
+            raise ValueError(
+                f"Aggregation function must be callable or one of {', '.join(self._AGGREGATION_FUNCTIONS.keys())}"
             )
 
         self.embedding = embedding

@@ -145,12 +145,11 @@ def _smacof_single_w(similarities, n_uq, uq_weight, metric=True, n_components=2,
 
         if verbose >= 2:
             print('it: %d, stress %s' % (it, stress))
-        if old_stress is not None:
-            if (old_stress - _stress / dis) < eps:
-                if verbose:
-                    print('breaking at iteration %d with stress %s' % (it,
-                                                                       stress))
-                break
+        if old_stress is not None and (old_stress - _stress / dis) < eps:
+            if verbose:
+                print('breaking at iteration %d with stress %s' % (it,
+                                                                   stress))
+            break
         old_stress = _stress / dis
 
     return X, _stress, it + 1
@@ -258,7 +257,7 @@ def _smacof_w(similarities, n_uq, uq_weight, metric=True, n_components=2, init=N
 
     if hasattr(init, '__array__'):
         init = np.asarray(init).copy()
-        if not n_init == 1:
+        if n_init != 1:
             warnings.warn(
                 'Explicit initial positions passed: '
                 'performing only one init of the MDS instead of %d'
@@ -268,7 +267,7 @@ def _smacof_w(similarities, n_uq, uq_weight, metric=True, n_components=2, init=N
     best_pos, best_stress = None, None
 
     if n_jobs == 1:
-        for it in range(n_init):
+        for _ in range(n_init):
             pos, stress, n_iter_ = _smacof_single_w(
                 similarities, n_uq, uq_weight, metric=metric,
                 n_components=n_components, init=init,

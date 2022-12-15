@@ -34,19 +34,18 @@ class ProblemTransformationBase(MLClassifierBase):
         self.copyable_attrs = ["classifier", "require_dense"]
 
         self.classifier = classifier
-        if require_dense is not None:
-            if isinstance(require_dense, bool):
-                self.require_dense = [require_dense, require_dense]
-            else:
-                assert len(require_dense) == 2 and isinstance(
-                    require_dense[0], bool) and isinstance(require_dense[1], bool)
-                self.require_dense = require_dense
-
+        if require_dense is None:
+            self.require_dense = (
+                [False, False]
+                if isinstance(self.classifier, MLClassifierBase)
+                else [True, True]
+            )
+        elif isinstance(require_dense, bool):
+            self.require_dense = [require_dense, require_dense]
         else:
-            if isinstance(self.classifier, MLClassifierBase):
-                self.require_dense = [False, False]
-            else:
-                self.require_dense = [True, True]
+            assert len(require_dense) == 2 and isinstance(
+                require_dense[0], bool) and isinstance(require_dense[1], bool)
+            self.require_dense = require_dense
 
     def _ensure_multi_label_from_single_class(self, matrix, matrix_format='csr'):
         """Transform single class outputs to a 2D sparse matrix
@@ -71,22 +70,17 @@ class ProblemTransformationBase(MLClassifierBase):
         if isinstance(matrix, (list, tuple, np.ndarray)):
             if isinstance(matrix[0], (list, tuple, np.ndarray)):
                 is_2d = True
-                dim_1 = len(matrix)
                 dim_2 = len(matrix[0])
-            # 1d list or array
             else:
                 is_2d = False
-                # shape is n_samples of 1 class assignment
-                dim_1 = len(matrix)
                 dim_2 = 1
 
-        # not an array but 2D, probably a matrix
+            dim_1 = len(matrix)
         elif matrix.ndim == 2:
             is_2d = True
             dim_1 = matrix.shape[0]
             dim_2 = matrix.shape[1]
 
-        # what is it? 
         else:
             raise ValueError("Matrix dimensions too large (>2) or other value error")
 
